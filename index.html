@@ -15,6 +15,10 @@
         margin-bottom: 15px;
     }
 
+    h3 {
+        margin-top: 0;
+    }
+
     .card {
         background: #fff;
         padding: 25px;
@@ -26,7 +30,7 @@
         display: grid;
         grid-template-columns: 1fr 1.2fr;
         gap: 30px;
-        max-width: 1000px;
+        max-width: 1100px;
         margin-bottom: 30px;
     }
 
@@ -66,19 +70,70 @@
 
     .palette-preview {
         display: flex;
-        height: 260px;
+        height: 120px;
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid #ddd;
+        margin-bottom: 20px;
     }
 
     .color-box {
         flex: 1;
     }
 
-    /* Suggestions */
+    /* ===== SAMPLE UI ===== */
+    .sample-ui {
+        display: flex;
+        height: 260px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        font-size: 13px;
+    }
+
+    .sample-sidebar {
+        width: 70px;
+        padding: 10px;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .sample-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sample-header {
+        padding: 10px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sample-content {
+        flex: 1;
+        padding: 10px;
+    }
+
+    .sample-card {
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .sample-btn {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    /* ===== SUGGESTIONS ===== */
     .suggestions {
-        max-width: 1000px;
+        max-width: 1100px;
     }
 
     .suggestion-grid {
@@ -115,29 +170,54 @@
 <h2>🎨 New Color Palette</h2>
 
 <div class="container">
-    <!-- LEFT -->
+
+    <!-- LEFT PANEL -->
     <div class="card">
         <label>Palette Name</label>
         <input type="text" id="paletteName" placeholder="Palette name">
 
         <label>Choose Colors</label>
         <div id="colorList">
-            <input type="text" class="color-input" value="#eeeeee">
-            <input type="text" class="color-input" value="#dddddd">
-            <input type="text" class="color-input" value="#cccccc">
-            <input type="text" class="color-input" value="#bbbbbb">
-            <input type="text" class="color-input" value="#aaaaaa">
+            <input type="text" class="color-input" value="#203040">
+            <input type="text" class="color-input" value="#304050">
+            <input type="text" class="color-input" value="#1070E0">
+            <input type="text" class="color-input" value="#F0F0F0">
+            <input type="text" class="color-input" value="#FFFFFF">
         </div>
 
         <button class="btn btn-add" onclick="addColor()">+ Add Color</button>
         <button class="btn btn-save" onclick="savePalette()">💾 Save JSON + Image</button>
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT PANEL -->
     <div class="card">
         <label>Palette Preview</label>
         <div class="palette-preview" id="palettePreview"></div>
+
+        <label style="margin-top:15px;">Sample Web Design</label>
+        <div class="sample-ui" id="sampleUI">
+            <div class="sample-sidebar">MENU</div>
+
+            <div class="sample-main">
+                <div class="sample-header">
+                    Dashboard
+                    <button class="sample-btn">Action</button>
+                </div>
+
+                <div class="sample-content">
+                    <div class="sample-card">
+                        <h4>Card Title</h4>
+                        <p>This is a sample content card using your palette.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-add" onclick="shuffleSampleUI()" style="margin-top:10px;">
+    🔀 Shuffle UI Colors
+</button>
+
     </div>
+
 </div>
 
 <!-- SUGGESTIONS -->
@@ -148,7 +228,7 @@
 
 <script>
 const paletteSuggestions = [
-    { name: "Grayscale", colors: ["#eeeeee","#dddddd","#cccccc","#bbbbbb","#999999"] },
+    { name: "ERP Blue", colors: ["#203040","#304050","#1070E0","#F0F0F0","#FFFFFF"] },
     { name: "Sunset", colors: ["#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"] },
     { name: "Ocean", colors: ["#caf0f8","#90dbf4","#48cae4","#0096c7","#023e8a"] },
     { name: "Pastel", colors: ["#ffd6e0","#cdb4db","#bde0fe","#a2d2ff","#caffbf"] },
@@ -159,12 +239,24 @@ function updatePalette() {
     const preview = document.getElementById('palettePreview');
     preview.innerHTML = '';
 
-    document.querySelectorAll('.color-input').forEach(input => {
+    const colors = [...document.querySelectorAll('.color-input')]
+        .map(input => input.value);
+
+    colors.forEach(color => {
         const box = document.createElement('div');
         box.className = 'color-box';
-        box.style.backgroundColor = input.value;
+        box.style.backgroundColor = color;
         preview.appendChild(box);
     });
+
+    if (colors.length < 5) return;
+
+    const ui = document.getElementById('sampleUI');
+    ui.querySelector('.sample-sidebar').style.background = colors[0];
+    ui.querySelector('.sample-header').style.background = colors[1];
+    ui.querySelector('.sample-btn').style.background = colors[2];
+    ui.querySelector('.sample-content').style.background = colors[3];
+    ui.querySelector('.sample-card').style.background = colors[4];
 }
 
 function addColor() {
@@ -173,14 +265,13 @@ function addColor() {
     input.className = 'color-input';
     input.value = '#ffffff';
     input.addEventListener('input', updatePalette);
-
     document.getElementById('colorList').appendChild(input);
     updatePalette();
 }
 
 function applySuggestion(palette) {
-    document.getElementById('colorList').innerHTML = '';
     document.getElementById('paletteName').value = palette.name;
+    document.getElementById('colorList').innerHTML = '';
 
     palette.colors.forEach(color => {
         const input = document.createElement('input');
@@ -258,10 +349,27 @@ function download(blob, filename) {
     URL.revokeObjectURL(a.href);
 }
 
+function shuffleSampleUI() {
+    const colors = [...document.querySelectorAll('.color-input')]
+        .map(i => i.value);
+
+    if (colors.length < 5) return;
+
+    // Shuffle colors
+    const shuffled = [...colors].sort(() => Math.random() - 0.5);
+
+    const ui = document.getElementById('sampleUI');
+    ui.querySelector('.sample-sidebar').style.background = shuffled[0];
+    ui.querySelector('.sample-header').style.background = shuffled[1];
+    ui.querySelector('.sample-btn').style.background = shuffled[2];
+    ui.querySelector('.sample-content').style.background = shuffled[3];
+    ui.querySelector('.sample-card').style.background = shuffled[4];
+}
+
+
 /* INIT */
-document.querySelectorAll('.color-input').forEach(i =>
-    i.addEventListener('input', updatePalette)
-);
+document.querySelectorAll('.color-input')
+    .forEach(i => i.addEventListener('input', updatePalette));
 
 renderSuggestions();
 updatePalette();
