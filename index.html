@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Color Palette Viewer</title>
+
+<style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f4f6f8;
+        padding: 30px;
+    }
+
+    h2 {
+        margin-bottom: 15px;
+    }
+
+    .card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 30px;
+        max-width: 1000px;
+        margin-bottom: 30px;
+    }
+
+    label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        margin-top: 8px;
+    }
+
+    .btn-add {
+        background: #eef2f7;
+    }
+
+    .btn-save {
+        background: #2563eb;
+        color: #fff;
+        margin-left: 5px;
+    }
+
+    .palette-preview {
+        display: flex;
+        height: 260px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .color-box {
+        flex: 1;
+    }
+
+    /* Suggestions */
+    .suggestions {
+        max-width: 1000px;
+    }
+
+    .suggestion-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
+    }
+
+    .suggestion {
+        cursor: pointer;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .suggestion-preview {
+        display: flex;
+        height: 60px;
+    }
+
+    .suggestion-name {
+        padding: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        text-align: center;
+        background: #fafafa;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>🎨 New Color Palette</h2>
+
+<div class="container">
+    <!-- LEFT -->
+    <div class="card">
+        <label>Palette Name</label>
+        <input type="text" id="paletteName" placeholder="Palette name">
+
+        <label>Choose Colors</label>
+        <div id="colorList">
+            <input type="text" class="color-input" value="#eeeeee">
+            <input type="text" class="color-input" value="#dddddd">
+            <input type="text" class="color-input" value="#cccccc">
+            <input type="text" class="color-input" value="#bbbbbb">
+            <input type="text" class="color-input" value="#aaaaaa">
+        </div>
+
+        <button class="btn btn-add" onclick="addColor()">+ Add Color</button>
+        <button class="btn btn-save" onclick="savePalette()">💾 Save JSON + Image</button>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+        <label>Palette Preview</label>
+        <div class="palette-preview" id="palettePreview"></div>
+    </div>
+</div>
+
+<!-- SUGGESTIONS -->
+<div class="card suggestions">
+    <h3>✨ Palette Suggestions</h3>
+    <div class="suggestion-grid" id="suggestions"></div>
+</div>
+
+<script>
+const paletteSuggestions = [
+    { name: "Grayscale", colors: ["#eeeeee","#dddddd","#cccccc","#bbbbbb","#999999"] },
+    { name: "Sunset", colors: ["#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"] },
+    { name: "Ocean", colors: ["#caf0f8","#90dbf4","#48cae4","#0096c7","#023e8a"] },
+    { name: "Pastel", colors: ["#ffd6e0","#cdb4db","#bde0fe","#a2d2ff","#caffbf"] },
+    { name: "Earth", colors: ["#606c38","#283618","#fefae0","#dda15e","#bc6c25"] }
+];
+
+function updatePalette() {
+    const preview = document.getElementById('palettePreview');
+    preview.innerHTML = '';
+
+    document.querySelectorAll('.color-input').forEach(input => {
+        const box = document.createElement('div');
+        box.className = 'color-box';
+        box.style.backgroundColor = input.value;
+        preview.appendChild(box);
+    });
+}
+
+function addColor() {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'color-input';
+    input.value = '#ffffff';
+    input.addEventListener('input', updatePalette);
+
+    document.getElementById('colorList').appendChild(input);
+    updatePalette();
+}
+
+function applySuggestion(palette) {
+    document.getElementById('colorList').innerHTML = '';
+    document.getElementById('paletteName').value = palette.name;
+
+    palette.colors.forEach(color => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'color-input';
+        input.value = color;
+        input.addEventListener('input', updatePalette);
+        document.getElementById('colorList').appendChild(input);
+    });
+
+    updatePalette();
+}
+
+function renderSuggestions() {
+    const container = document.getElementById('suggestions');
+
+    paletteSuggestions.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'suggestion';
+        card.onclick = () => applySuggestion(p);
+
+        const preview = document.createElement('div');
+        preview.className = 'suggestion-preview';
+
+        p.colors.forEach(c => {
+            const box = document.createElement('div');
+            box.style.flex = 1;
+            box.style.background = c;
+            preview.appendChild(box);
+        });
+
+        const name = document.createElement('div');
+        name.className = 'suggestion-name';
+        name.innerText = p.name;
+
+        card.appendChild(preview);
+        card.appendChild(name);
+        container.appendChild(card);
+    });
+}
+
+/* ===== SAVE JSON + IMAGE ===== */
+function savePalette() {
+    const name = document.getElementById('paletteName').value || 'my-palette';
+    const colors = [...document.querySelectorAll('.color-input')].map(i => i.value);
+
+    const jsonBlob = new Blob(
+        [JSON.stringify({ name, colors }, null, 2)],
+        { type: 'application/json' }
+    );
+    download(jsonBlob, `${name}.json`);
+    saveImage(colors, name);
+}
+
+function saveImage(colors, name) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width / colors.length;
+
+    colors.forEach((c, i) => {
+        ctx.fillStyle = c;
+        ctx.fillRect(i * w, 0, w, canvas.height);
+    });
+
+    canvas.toBlob(blob => download(blob, `${name}.png`));
+}
+
+function download(blob, filename) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename.replace(/\s+/g,'_').toLowerCase();
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+/* INIT */
+document.querySelectorAll('.color-input').forEach(i =>
+    i.addEventListener('input', updatePalette)
+);
+
+renderSuggestions();
+updatePalette();
+</script>
+
+</body>
+</html>
